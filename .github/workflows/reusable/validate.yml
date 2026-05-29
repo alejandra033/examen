@@ -1,0 +1,43 @@
+name: Reusable validation workflow
+
+on:
+  workflow_call:
+    inputs:
+      run_frontend:
+        required: true
+        type: boolean
+      run_backend:
+        required: true
+        type: boolean
+      run_infrastructure:
+        required: true
+        type: boolean
+      run_docs:
+        required: true
+        type: boolean
+
+jobs:
+  common-validations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Shared validation
+        run: |
+          echo "Running shared enterprise validations"
+          if [ "${{ inputs.run_frontend }}" = "true" ]; then echo "- Frontend validation enabled"; fi
+          if [ "${{ inputs.run_backend }}" = "true" ]; then echo "- Backend validation enabled"; fi
+          if [ "${{ inputs.run_infrastructure }}" = "true" ]; then echo "- Infrastructure validation enabled"; fi
+          echo "Add real lint, security checks, or static analysis commands here."
+
+  docs-validation:
+    if: ${{ inputs.run_docs == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run docs validation
+        run: |
+          echo "Running documentation validation"
+          echo "This workflow is reusable for docs-only validation when needed."

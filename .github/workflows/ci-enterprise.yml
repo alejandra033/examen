@@ -1,0 +1,73 @@
+name: Enterprise CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+      docs: ${{ steps.filter.outputs.docs }}
+      any_code_change: ${{ steps.filter.outputs.any }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect modified components
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'backend/**'
+            infrastructure:
+              - 'infrastructure/**'
+            docs:
+              - 'docs/**'
+              - '*.md'
+
+  validate:
+    needs: detect-changes
+    uses: ./.github/workflows/reusable/validate.yml
+    if: ${{ needs.detect-changes.outputs.any_code_change == 'true' }}
+    with:
+      run_frontend: ${{ needs.detect-changes.outputs.frontend }}
+      run_backend: ${{ needs.detect-changes.outputs.backend }}
+      run_infrastructure: ${{ needs.detect-changes.outputs.infrastructure }}
+      run_docs: false
+
+  build:
+    needs: detect-changes
+    uses: ./.github/workflows/reusable/build.yml
+    if: ${{ needs.detect-changes.outputs.any_code_change == 'true' }}
+    with:
+      run_frontend: ${{ needs.detect-changes.outputs.frontend }}
+      run_backend: ${{ needs.detect-changes.outputs.backend }}
+      run_infrastructure: ${{ needs.detect-changes.outputs.infrastructure }}
+
+  test:
+    needs: detect-changes
+    uses: ./.github/workflows/reusable/test.yml
+    if: ${{ needs.detect-changes.outputs.any_code_change == 'true' }}
+    with:
+      run_frontend: ${{ needs.detect-changes.outputs.frontend }}
+      run_backend: ${{ needs.detect-changes.outputs.backend }}
+      run_infrastructure: ${{ needs.detect-changes.outputs.infrastructure }}

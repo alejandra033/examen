@@ -1,0 +1,26 @@
+name: Docs Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '*.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Validate docs changes
+        run: |
+          echo "Docs-only change detected. Running documentation validation."
+          echo "You can add spellcheck, link validation, or static site checks here."

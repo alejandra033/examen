@@ -1,0 +1,48 @@
+name: Reusable testing workflow
+
+on:
+  workflow_call:
+    inputs:
+      run_frontend:
+        required: true
+        type: boolean
+      run_backend:
+        required: true
+        type: boolean
+      run_infrastructure:
+        required: true
+        type: boolean
+
+jobs:
+  frontend-tests:
+    if: ${{ inputs.run_frontend == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run frontend tests
+        run: |
+          echo "Running frontend test suite..."
+          echo "Replace with yarn test / npm test for frontend."
+
+  backend-tests:
+    if: ${{ inputs.run_backend == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run backend tests
+        run: |
+          echo "Running backend test suite..."
+          echo "Replace with pytest / dotnet test / go test as needed."
+
+  infrastructure-tests:
+    if: ${{ inputs.run_infrastructure == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run infrastructure tests
+        run: |
+          echo "Running infrastructure validation tests..."
+          echo "Replace with terratest, terraform validate, or other IaC checks."
